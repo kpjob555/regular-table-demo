@@ -1,6 +1,8 @@
 /// <reference types="vite/client" />
 
-declare global {
+import "react";
+
+declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
       "regular-table": React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
@@ -9,5 +11,3 @@ declare global {
     }
   }
 }
-
-export {};

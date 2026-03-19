@@ -5,6 +5,8 @@
   padding: 20px;
   height: 100%;
   box-sizing: border-box;
+  isolation: isolate;
+  position: relative;
 }
 
 .table-controls {
@@ -14,7 +16,6 @@
   padding: 0 4px;
   position: relative;
   z-index: 10;
-  background: #fafafa;
 }
 
 .table-controls h2 {
@@ -33,67 +34,21 @@
   cursor: pointer;
   font-weight: 500;
   transition: background 0.2s;
+  position: relative;
+  z-index: 11;
 }
 
 .reset-btn:hover {
   background: #3700b3;
 }
 
-.column-headers {
-  display: flex;
-  background: #f5f5f5;
-  border-radius: 4px 4px 0 0;
-  border: 1px solid #ddd;
-  border-bottom: none;
-  user-select: none;
-  position: relative;
-  z-index: 5;
-}
-
-.column-header {
-  flex: 1;
-  min-width: 80px;
-  padding: 12px 16px;
-  text-align: center;
-  font-weight: 600;
-  color: #333;
-  cursor: grab;
-  transition:
-    background 0.15s,
-    opacity 0.15s;
-  border-right: 1px solid #ddd;
-}
-
-.column-header:last-child {
-  border-right: none;
-}
-
-.column-header:hover {
-  background: #e8e8e8;
-}
-
-.column-header:active {
-  cursor: grabbing;
-}
-
-.column-header.dragging {
-  opacity: 0.4;
-  background: #c5cae9;
-}
-
-.column-header.drop-target {
-  background: #c8e6c9;
-  border-left: 3px solid #4caf50;
-}
-
 regular-table {
   height: 500px;
   width: 100%;
   border: 1px solid #ddd;
-  border-radius: 0 0 4px 4px;
-  display: block;
-  position: relative;
-  z-index: 1;
+  border-radius: 4px;
+  pointer-events: auto;
+  overflow: hidden;
 }
 
 regular-table table {
@@ -104,6 +59,8 @@ regular-table table {
   font-size: 13px;
   color: #666;
   padding: 0 4px;
+  position: relative;
+  z-index: 5;
 }
 
 .instructions p {
@@ -138,4 +95,36 @@ regular-table tbody th:empty {
 regular-table table thead,
 regular-table table tbody {
   user-select: none;
+}
+
+/* Column drag styles */
+regular-table thead th {
+  cursor: grab;
+  transition:
+    background 0.15s,
+    opacity 0.15s;
+}
+
+regular-table thead th:active {
+  cursor: grabbing;
+}
+
+regular-table thead th.col-drag-source {
+  opacity: 0.4;
+  background: #c5cae9 !important;
+}
+
+regular-table thead th.col-drag-target {
+  background: #c8e6c9 !important;
+  border-left: 3px solid #4caf50;
+}
+
+regular-table thead th.col-drag-target::after {
+  content: "";
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #4caf50;
 }

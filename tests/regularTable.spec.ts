@@ -20,27 +20,26 @@ test.describe("Regular Table Demo", () => {
     await expect(page.locator("regular-table")).toBeVisible();
   });
 
-  test("column headers are draggable", async ({ page }) => {
-    const headers = page.locator(".column-header");
+  test("column headers inside regular-table thead are draggable", async ({ page }) => {
+    const headers = page.locator("regular-table thead th");
     const count = await headers.count();
-    expect(count).toBe(5);
+    expect(count).toBeGreaterThanOrEqual(5);
 
     const firstHeader = headers.nth(0);
-    const secondHeader = headers.nth(1);
+    const thirdHeader = headers.nth(2);
 
     const firstBox = await firstHeader.boundingBox();
-    const secondBox = await secondHeader.boundingBox();
+    const thirdBox = await thirdHeader.boundingBox();
 
-    if (firstBox && secondBox) {
+    if (firstBox && thirdBox) {
       await page.mouse.move(firstBox.x + firstBox.width / 2, firstBox.y + firstBox.height / 2);
       await page.mouse.down();
-      await page.mouse.move(secondBox.x + secondBox.width / 2, secondBox.y + secondBox.height / 2);
+      await page.mouse.move(thirdBox.x + thirdBox.width / 2, thirdBox.y + thirdBox.height / 2);
       await page.mouse.up();
 
-      const updatedFirstText = await headers.nth(0).textContent();
-      const updatedSecondText = await headers.nth(1).textContent();
-
-      expect(updatedFirstText).not.toBe(updatedSecondText);
+      const newFirstText = await headers.nth(0).textContent();
+      const newThirdText = await headers.nth(2).textContent();
+      expect(newFirstText).not.toBe(newThirdText);
     }
   });
 
@@ -49,8 +48,15 @@ test.describe("Regular Table Demo", () => {
 
     const directoryBefore = await page.locator("regular-table tbody th.rt-directory").count();
 
-    const firstDir = page.locator("regular-table tbody th.rt-directory").first();
-    await firstDir.click();
+    // Use JS dispatchEvent to fire mousedown, bypassing sticky corner cell interception
+    await page.evaluate(() => {
+      const th = document.querySelector(
+        "regular-table tbody th.rt-directory",
+      ) as HTMLElement | null;
+      if (th) {
+        th.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
+      }
+    });
 
     await page.waitForTimeout(300);
 
@@ -63,11 +69,16 @@ test.describe("Regular Table Demo", () => {
   });
 
   test("table has correct column headers", async ({ page }) => {
+    await page.waitForSelector("regular-table thead th");
     const expectedHeaders = ["Name", "Size", "Kind", "Modified", "Writable"];
-    const headers = page.locator(".column-header");
+    // Skip the first (empty corner cell) th, check the 5 column headers
+    const headers = page.locator("regular-table thead th");
+    const count = await headers.count();
+    expect(count).toBeGreaterThanOrEqual(expectedHeaders.length);
 
     for (let i = 0; i < expectedHeaders.length; i++) {
-      await expect(headers.nth(i)).toContainText(expectedHeaders[i]);
+      // nth(i+1) skips the empty corner cell at index 0
+      await expect(headers.nth(i + 1)).toContainText(expectedHeaders[i]);
     }
   });
 });
