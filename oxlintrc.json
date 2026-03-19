@@ -1,0 +1,6 @@
+{
+  "extends": ["plugin:@oxlint/recommended"],
+  "rules": {
+    "no-unused-vars": "warn"
+  }
+}

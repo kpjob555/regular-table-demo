@@ -1,0 +1,141 @@
+.regular-table-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.table-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+  position: relative;
+  z-index: 10;
+  background: #fafafa;
+}
+
+.table-controls h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.reset-btn {
+  padding: 8px 16px;
+  background: #6200ee;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.reset-btn:hover {
+  background: #3700b3;
+}
+
+.column-headers {
+  display: flex;
+  background: #f5f5f5;
+  border-radius: 4px 4px 0 0;
+  border: 1px solid #ddd;
+  border-bottom: none;
+  user-select: none;
+  position: relative;
+  z-index: 5;
+}
+
+.column-header {
+  flex: 1;
+  min-width: 80px;
+  padding: 12px 16px;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+  cursor: grab;
+  transition:
+    background 0.15s,
+    opacity 0.15s;
+  border-right: 1px solid #ddd;
+}
+
+.column-header:last-child {
+  border-right: none;
+}
+
+.column-header:hover {
+  background: #e8e8e8;
+}
+
+.column-header:active {
+  cursor: grabbing;
+}
+
+.column-header.dragging {
+  opacity: 0.4;
+  background: #c5cae9;
+}
+
+.column-header.drop-target {
+  background: #c8e6c9;
+  border-left: 3px solid #4caf50;
+}
+
+regular-table {
+  height: 500px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 0 0 4px 4px;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+regular-table table {
+  table-layout: fixed;
+}
+
+.instructions {
+  font-size: 13px;
+  color: #666;
+  padding: 0 4px;
+}
+
+.instructions p {
+  margin: 4px 0;
+}
+
+/* regular-table theme overrides */
+regular-table tbody th.rt-directory {
+  cursor: pointer;
+  font-weight: 500;
+}
+
+regular-table tbody th.rt-directory::before {
+  font-family: "Material Icons";
+  content: "folder ";
+}
+
+regular-table tbody th.rt-directory.rt-open::before {
+  content: "folder_open ";
+}
+
+regular-table tbody th.rt-file::before {
+  font-family: "Material Icons";
+  content: "description ";
+}
+
+regular-table tbody th:empty {
+  min-width: 20px;
+  max-width: 20px;
+}
+
+regular-table table thead,
+regular-table table tbody {
+  user-select: none;
+}
