@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import "regular-table";
 import "regular-table/dist/css/material.css";
 import { useRegularTable } from "./useRegularTable";
@@ -6,10 +5,6 @@ import "./styles.css";
 
 export function RegularTable() {
   const { tableRef, resetData } = useRegularTable();
-
-  useEffect(() => {
-    // regular-table is statically imported above
-  }, []);
 
   return (
     <div className="regular-table-container">

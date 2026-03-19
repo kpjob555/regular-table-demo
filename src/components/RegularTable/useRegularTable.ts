@@ -16,7 +16,8 @@ export function useRegularTable() {
   });
 
   // Force re-render for visual drag feedback
-  const rerender = useCallback(() => {}, []);
+  const [, setRenderTick] = useState(0);
+  const rerender = useCallback(() => setRenderTick((t) => t + 1), []);
 
   const drawTable = useCallback(() => {
     if (!tableRef.current) return;
