@@ -5,8 +5,6 @@
   padding: 20px;
   height: 100%;
   box-sizing: border-box;
-  isolation: isolate;
-  position: relative;
 }
 
 .table-controls {
@@ -14,8 +12,6 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 4px;
-  position: relative;
-  z-index: 10;
 }
 
 .table-controls h2 {
@@ -34,8 +30,6 @@
   cursor: pointer;
   font-weight: 500;
   transition: background 0.2s;
-  position: relative;
-  z-index: 11;
 }
 
 .reset-btn:hover {
@@ -47,8 +41,6 @@ regular-table {
   width: 100%;
   border: 1px solid #ddd;
   border-radius: 4px;
-  pointer-events: auto;
-  overflow: hidden;
 }
 
 regular-table table {
@@ -59,15 +51,13 @@ regular-table table {
   font-size: 13px;
   color: #666;
   padding: 0 4px;
-  position: relative;
-  z-index: 5;
 }
 
 .instructions p {
   margin: 4px 0;
 }
 
-/* regular-table theme overrides */
+/* Body row icons */
 regular-table tbody th.rt-directory {
   cursor: pointer;
   font-weight: 500;
@@ -97,15 +87,12 @@ regular-table table tbody {
   user-select: none;
 }
 
-/* Column drag styles */
-regular-table thead th {
+/* Column header drag styles */
+regular-table thead th[draggable="true"] {
   cursor: grab;
-  transition:
-    background 0.15s,
-    opacity 0.15s;
 }
 
-regular-table thead th:active {
+regular-table thead th[draggable="true"]:active {
   cursor: grabbing;
 }
 
@@ -116,7 +103,7 @@ regular-table thead th.col-drag-source {
 
 regular-table thead th.col-drag-target {
   background: #c8e6c9 !important;
-  border-left: 3px solid #4caf50;
+  position: relative;
 }
 
 regular-table thead th.col-drag-target::after {
