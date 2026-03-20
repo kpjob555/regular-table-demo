@@ -9,7 +9,11 @@ export function useRegularTable() {
   const [columnOrder, setColumnOrder] = useState<number[]>([0, 1, 2, 3, 4]);
 
   // Drag state lives in a ref so event handlers always get the latest value
-  const dragRef = useRef<{ dragging: boolean; sourceIndex: number; targetIndex: number | null }>({
+  const dragRef = useRef<{
+    dragging: boolean;
+    sourceIndex: number;
+    targetIndex: number | null;
+  }>({
     dragging: false,
     sourceIndex: -1,
     targetIndex: null,
@@ -23,7 +27,9 @@ export function useRegularTable() {
     if (!tableRef.current) return;
 
     const table = tableRef.current as unknown as {
-      setDataListener: (fn: (x0: number, y0: number, x1: number, y1: number) => unknown) => void;
+      setDataListener: (
+        fn: (x0: number, y0: number, x1: number, y1: number) => unknown,
+      ) => void;
       draw: () => void;
       resetAutoSize: () => void;
       addStyleListener: (fn: () => void) => void;
@@ -31,7 +37,9 @@ export function useRegularTable() {
       removeEventListener: (event: string, fn: (e: Event) => void) => void;
     };
 
-    table.setDataListener(createDataListener(dataRef.current, columnOrderRef.current));
+    table.setDataListener(
+      createDataListener(dataRef.current, columnOrderRef.current),
+    );
     table.draw();
   }, []);
 
@@ -69,7 +77,10 @@ export function useRegularTable() {
         if (visualIdx === dragRef.current.sourceIndex) {
           th.classList.add("col-drag-source");
         }
-        if (dragRef.current.targetIndex !== null && visualIdx === dragRef.current.targetIndex) {
+        if (
+          dragRef.current.targetIndex !== null &&
+          visualIdx === dragRef.current.targetIndex
+        ) {
           th.classList.add("col-drag-target");
         }
       }
@@ -100,24 +111,28 @@ export function useRegularTable() {
   // ── Native HTML5 Drag Events ─────────────────────────────────────
   const handleDragStart = useCallback(
     (event: Event) => {
-      const target = (event as DragEvent).target as HTMLElement;
-      if (target.tagName !== "TH") return;
+      const ev = event as DragEvent;
+      const target = ev.target as HTMLElement;
+      const th = target?.closest("thead th") as HTMLElement | null;
+      if (!th) return;
 
-      const table = tableRef.current as unknown as {
-        getMeta: (el: HTMLElement) => { x: number; y: number; value: string };
+      // Get visual position from DOM order
+      // DOM index 0 is corner cell, data columns start at DOM index 1
+      const thead = th.closest("thead");
+      const ths = thead?.querySelectorAll("th");
+      const domIndex = ths ? Array.from(ths).indexOf(th as HTMLTableCellElement) : -1;
+
+      if (domIndex <= 0) return; // Skip corner cell
+      const visualPos = domIndex - 1;
+
+      dragRef.current = {
+        dragging: true,
+        sourceIndex: visualPos,
+        targetIndex: visualPos,
       };
-
-      const meta = table.getMeta(target);
-      if (!meta || meta.x < 0) return;
-
-      const sourceIndex = columnOrderRef.current.indexOf(meta.x);
-      if (sourceIndex === -1) return;
-
-      dragRef.current = { dragging: true, sourceIndex, targetIndex: sourceIndex };
       rerender();
 
-      const ev = event as DragEvent;
-      ev.dataTransfer?.setData("text/plain", String(sourceIndex));
+      ev.dataTransfer?.setData("text/plain", String(visualPos));
       if (ev.dataTransfer) {
         ev.dataTransfer.effectAllowed = "move";
       }
@@ -130,23 +145,24 @@ export function useRegularTable() {
       event.preventDefault();
       if (!dragRef.current.dragging) return;
 
-      const targetEl = (event.target as HTMLElement).closest("thead th") as HTMLElement | null;
+      const ev = event as DragEvent;
+      const target = ev.target as HTMLElement;
+      const targetEl = target?.closest("thead th") as HTMLElement | null;
       if (!targetEl) return;
 
-      const table = tableRef.current as unknown as {
-        getMeta: (el: HTMLElement) => { x: number; y: number; value: string };
-      };
+      const thead = targetEl.closest("thead");
+      const ths = thead?.querySelectorAll("th");
+      const domIndex = ths ? Array.from(ths).indexOf(targetEl as HTMLTableCellElement) : -1;
 
-      const meta = table.getMeta(targetEl);
-      if (!meta || meta.x < 0) return;
+      if (domIndex <= 0) return; // Skip corner cell
+      const visualPos = domIndex - 1;
 
-      const targetIndex = columnOrderRef.current.indexOf(meta.x);
-      if (targetIndex !== -1 && targetIndex !== dragRef.current.targetIndex) {
-        dragRef.current = { ...dragRef.current, targetIndex };
+      if (visualPos !== dragRef.current.targetIndex) {
+        dragRef.current = { ...dragRef.current, targetIndex: visualPos };
         rerender();
       }
 
-      (event as DragEvent).dataTransfer!.dropEffect = "move";
+      ev.dataTransfer!.dropEffect = "move";
     },
     [rerender],
   );
@@ -158,7 +174,6 @@ export function useRegularTable() {
 
       const { sourceIndex, targetIndex } = dragRef.current;
       dragRef.current = { dragging: false, sourceIndex: -1, targetIndex: null };
-      rerender();
 
       if (sourceIndex !== targetIndex && targetIndex !== null) {
         setColumnOrder((prev) => {
@@ -170,7 +185,7 @@ export function useRegularTable() {
         });
       }
     },
-    [rerender],
+    [],
   );
 
   const handleDragEnd = useCallback(() => {
@@ -192,6 +207,7 @@ export function useRegularTable() {
     el.addStyleListener(styleListener);
     el.addEventListener("mousedown", handleTableMousedown);
 
+    // th elements are in the light DOM (slotted into regular-table), not shadow DOM
     table.addEventListener("dragstart", handleDragStart);
     table.addEventListener("dragover", handleDragOver);
     table.addEventListener("drop", handleDrop);
